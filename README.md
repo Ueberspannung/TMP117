@@ -67,7 +67,8 @@ int16_t getLowTemperaturLimit(uint8_t decimals);	// get value in decimal fixed p
 int16_t getLowTemperaturLimit(void);                // get value in binary s8.7 fixed point notation
 ```
 There are functions for accesing the registers for upper and lower temperature limit. (set and get)  
-for numerical details see [reading the tempature](#reading-the-tempature)
+for numerical details see [reading the tempature](#reading-the-temperature)  
+
 
 ### setting / reading operation mode
 ```
