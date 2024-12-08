@@ -107,7 +107,7 @@ void TMP117::reset(void)
 	eeprom_state=EEPROM_START;
 }	// reset
 
-void TMP117::setAlertPinSource(alert_mode_select_et source)
+void TMP117::setAlertPinSource(alert_pin_select_et source)
 {	// setAlertPinSource
 	configReg.RegisterData=read_word(REG_CONFIGURATION);
 	configReg.Flags.AlertPinSelect=source==ALERT_PIN_DATA_READY;
@@ -150,10 +150,10 @@ void TMP117::setConversionMode(conversion_mode_et mode)
 }	// setConversionMode
 
 
-TMP117::alert_mode_select_et 	TMP117::getAlertPinSource(void)
+TMP117::alert_pin_select_et 	TMP117::getAlertPinSource(void)
 {	// getAlertPinSource
 	configReg.RegisterData=read_word(REG_CONFIGURATION);
-	return (alert_mode_select_et)configReg.Flags.AlertPinSelect;
+	return (alert_pin_select_et)configReg.Flags.AlertPinSelect;
 }	// getAlertPinSource
 
 TMP117::alert_pin_polarity_et 	TMP117::getAlertPinPolarity(void)

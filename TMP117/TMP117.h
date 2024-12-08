@@ -76,7 +76,7 @@ class TMP117
 		
 		void reset(void);
 		
-		void setAlertPinSource(alert_mode_select_et source);
+		void setAlertPinSource(alert_pin_select_et source);
 		void setAlertPinPolarity(alert_pin_polarity_et polarity);
 		void setAlertMode(alert_mode_select_et mode);
 		void setAveragingMode(averaging_mode_et mode);
@@ -84,7 +84,7 @@ class TMP117
 		void setConversionMode(conversion_mode_et mode);
 		
 		
-		alert_mode_select_et 	getAlertPinSource(void);
+		alert_pin_select_et 	getAlertPinSource(void);
 		alert_pin_polarity_et 	getAlertPinPolarity(void);
 		alert_mode_select_et 	getAlertMode(void);
 		averaging_mode_et		getAveragingMode(void);
