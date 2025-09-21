@@ -2,11 +2,33 @@
 #include <Wire.h>
 #include "TMP117.h"
 
-TMP117::TMP117(uint8_t addr)
+TMP117::TMP117(uint8_t addr, uint8_t alert_pin)
 {	// constructor
 	i2c_address=addr;
 	eeprom_state=EEPROM_START;
+	int_pin = alert_pin;
+	int_pin_active_high=false;
 }	// constructor
+
+bool TMP117::init(void)				// test if chip exists and set int pin
+{	// init
+	bool exists;
+	Wire.beginTransmission(i2c_address);
+	exists=(!Wire.endTransmission());
+	if (int_pin!=0xFF)
+	{	// int_pin available
+		if (exists)
+		{	// chip available, configure int pin
+			// first guess pint is active low, enable PullUp
+			pinMode(int_pin,INPUT_PULLUP);
+		}	// chip available, configure int pin
+		else
+		{	// no chip -> no pin
+			int_pin=-1;
+		}	// no chip -> no pin	
+	}	// int_pin available
+	return exists;
+}	// init
 
 bool TMP117::process_idle(void)
 {	// process
@@ -33,6 +55,25 @@ bool TMP117::process_idle(void)
 	}	// switch eeprom_state
 	return eeprom_state==EEPROM_IDLE;
 }	// process
+
+bool TMP117::isAlert(void)				// test Alert Pin
+{	// isAlert
+	bool bAlert=false;
+	if (int_pin!=0xFF)
+	{	// pin exists
+		bAlert=digitalRead(int_pin);
+		bAlert=(int_pin_active_high)?(bAlert):(!bAlert);
+	}	// pin exists
+	else
+	{	// read config register
+		configReg.RegisterData=read_word(REG_CONFIGURATION);
+		bAlert=	(configReg.Flags.AlertMode) ? 
+				(configReg.Flags.DataReady) :
+				(configReg.Flags.highTempAlert || configReg.Flags.lowTempAlert);
+	}	// read config register
+	return bAlert;
+}	// isAlert
+
 
 int16_t TMP117::getTemp(uint8_t decimals)	// gets temperature in decimal fixed point notation
 {	// getTemp(uint8_t decimals)
@@ -119,6 +160,7 @@ void TMP117::setAlertPinPolarity(alert_pin_polarity_et polarity)
 	configReg.RegisterData=read_word(REG_CONFIGURATION);
 	configReg.Flags.AlertPinPolarity=polarity==ALERT_PIN_ACTIVE_HIGH;
 	write_word(REG_CONFIGURATION,configReg.RegisterData);
+	int_pin_active_high=polarity==ALERT_PIN_ACTIVE_HIGH;
 }	// setAlertPinPolarity
 
 void TMP117::setAlertMode(alert_mode_select_et mode)
@@ -150,10 +192,10 @@ void TMP117::setConversionMode(conversion_mode_et mode)
 }	// setConversionMode
 
 
-TMP117::alert_pin_select_et 	TMP117::getAlertPinSource(void)
+TMP117::alert_mode_select_et 	TMP117::getAlertPinSource(void)
 {	// getAlertPinSource
 	configReg.RegisterData=read_word(REG_CONFIGURATION);
-	return (alert_pin_select_et)configReg.Flags.AlertPinSelect;
+	return (alert_mode_select_et)configReg.Flags.AlertPinSelect;
 }	// getAlertPinSource
 
 TMP117::alert_pin_polarity_et 	TMP117::getAlertPinPolarity(void)

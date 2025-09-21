@@ -16,8 +16,8 @@ class TMP117
 								ALERT_PIN_DATA_READY 
 								} alert_pin_select_et;
 
-		typedef enum:uint8_t {	ALERT_MODE_THERMISTOR,
-								ALERT_MODE_ALERT 
+		typedef enum:uint8_t {	ALERT_MODE_THERMISTOR,		// comparator with hysteresis 
+								ALERT_MODE_ALERT            // interrupt on over / under limit	
 								} alert_mode_select_et;
 
 		typedef enum:uint8_t {	AVERAGING_OFF,
@@ -28,9 +28,9 @@ class TMP117
 		
 		typedef enum:uint8_t {	CONVERSION_TIME_1_64s,
 								CONVERSION_TIME_1_8s,
+								CONVERSION_TIME_1_4s,
 								CONVERSION_TIME_1_2s,
 								CONVERSION_TIME_1s,
-								CONVERSION_TIME_2s,
 								CONVERSION_TIME_4s,
 								CONVERSION_TIME_8s,
 								CONVERSION_TIME_16s
@@ -53,10 +53,13 @@ class TMP117
 								} eeprom_pos_et;
 	
 	
-		TMP117(uint8_t addr);		// Constructor with i2c address
+		TMP117(uint8_t addr, uint8_t alert_pin=-1);		// Constructor with i2c address and int pin
+		
+		bool init(void);
 			
 		bool process_idle(void);	// non blocking processing, returns true if idle
 		
+		bool isAlert(void);				// test Alert Pin
 		
 		int16_t getTemp(uint8_t decimals);	// gets temperature in decimal fixed point notation
 		int16_t getTemp(void);				// gets temperature in binary s8.7 fixed point notiation
@@ -84,7 +87,7 @@ class TMP117
 		void setConversionMode(conversion_mode_et mode);
 		
 		
-		alert_pin_select_et 	getAlertPinSource(void);
+		alert_mode_select_et 	getAlertPinSource(void);
 		alert_pin_polarity_et 	getAlertPinPolarity(void);
 		alert_mode_select_et 	getAlertMode(void);
 		averaging_mode_et		getAveragingMode(void);
@@ -178,6 +181,9 @@ class TMP117
 
 		uint8_t 			i2c_address;
 		uint16_t			time;
+		uint8_t				int_pin;
+		bool				int_pin_active_high;
+
 
 		int16_t convertToIQ(int16_t valDec, uint8_t decimals);	// converts a value given as
 																// integer part of temperature*10^decimals
